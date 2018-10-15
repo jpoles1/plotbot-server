@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"plotbot-server/logging"
 	"strconv"
-	"virtualpatient/logging"
 
 	"github.com/fatih/color"
 	"github.com/subosito/gotenv"

@@ -2,10 +2,22 @@
 
 
 [[projects]]
+  name = "github.com/certifi/gocertifi"
+  packages = ["."]
+  revision = "deb3ae2ef2610fde3330947281941c562861188b"
+  version = "2018.01.18"
+
+[[projects]]
   name = "github.com/fatih/color"
   packages = ["."]
   revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
   version = "v1.7.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/getsentry/raven-go"
+  packages = ["."]
+  revision = "084a9de9eb0361fbd5ded14b55c84e5493a5d7f6"
 
 [[projects]]
   name = "github.com/go-chi/chi"
@@ -35,6 +47,12 @@
   version = "v0.0.4"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/subosito/gotenv"
   packages = ["."]
   revision = "69b5b6104433beb2cb9c3ce00bdadf3c7c2d3f34"
@@ -49,6 +67,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0b9d9d1d253857a755be2f6d0b3f6b1349c91dd78dc1d8cfc8b710168535c66e"
+  inputs-digest = "21a5c9265cf434269aefb6024aaefb0fabaaf601767fa7295a712de1973de80e"
   solver-name = "gps-cdcl"
   solver-version = 1
