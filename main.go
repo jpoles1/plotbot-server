@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"plotbot-server/envload"
+	"plotbot-server/logging"
 
 	"github.com/fatih/color"
 	"github.com/go-chi/chi"
@@ -44,7 +45,10 @@ func main() {
 	})
 	router.Route("/api", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			conn, _ := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
+			conn, err := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
+			if err != nil {
+				logging.Error("Upgrading websocket connection", err)
+			}
 			for {
 				// Read message from browser
 				msgType, msg, err := conn.ReadMessage()
