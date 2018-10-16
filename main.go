@@ -68,11 +68,11 @@ func main() {
 			}
 			if msg.MessageType == "commandRequest" {
 				if _, ok := plotterClients[ws]; ok {
-					currentCommand := msg.Payload.(int)
+					currentCommand := int(msg.Payload.(float64))
 					if currentCommand < len(commandList) {
 						ws.WriteJSON(wsMessage{
 							MessageType: "plotCommand",
-							Payload:     commandList[currentCommand],
+							Payload:     commandList[currentCommand%len(commandList)],
 						})
 					}
 				}

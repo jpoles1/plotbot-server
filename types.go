@@ -12,20 +12,12 @@ type plotMessage struct {
 
 var commandList = []plotMessage{
 	plotMessage{
-		stepperCommand{360, true},
-		stepperCommand{360, false},
+		stepperCommand{360 * 4, true},
+		stepperCommand{360 * 4, true},
 	},
 	plotMessage{
-		stepperCommand{360, false},
-		stepperCommand{360, true},
-	},
-	plotMessage{
-		stepperCommand{360, true},
-		stepperCommand{360, false},
-	},
-	plotMessage{
-		stepperCommand{360, false},
-		stepperCommand{360, true},
+		stepperCommand{360 * 4, false},
+		stepperCommand{360 * 4, false},
 	},
 }
 
