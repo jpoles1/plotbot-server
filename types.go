@@ -1,5 +1,14 @@
 package main
 
+type stepperConfig struct {
+	SpoolDiameter  float64
+	AnchorDistance float64
+}
+
+type stepperCoordinate struct {
+	X float64
+	Y float64
+}
 type stepperCommand struct {
 	Degrees   int  `json:"deg"`
 	Clockwise bool `json:"dir"`
