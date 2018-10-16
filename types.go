@@ -36,10 +36,6 @@ const (
 	monitor            = 1
 )
 
-type registrationMessage struct {
-	ClientType clientType `json:"clientType"`
-}
-
 type messageType int
 
 const (

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"plotbot-server/envload"
@@ -53,8 +54,9 @@ func main() {
 				logging.Error("Parsing incoming JSON", err)
 				break
 			}
+			fmt.Println(msg)
 			if msg.MessageType == 0 {
-				if msg.Payload.(registrationMessage).ClientType == plotter {
+				if msg.Payload.(clientType) == plotter {
 					delete(monitorClients, ws)
 					plotterClients[ws] = bson.NewObjectId()
 					ws.WriteJSON(wsMessage{
