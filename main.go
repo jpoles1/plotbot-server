@@ -55,22 +55,23 @@ func main() {
 				break
 			}
 			fmt.Println(msg)
-			if msg.MessageType == 0 {
-				if msg.Payload.(clientType) == plotter {
+			if msg.MessageType == "registration" {
+				if msg.Payload.(string) == "plotter" {
 					delete(monitorClients, ws)
 					plotterClients[ws] = bson.NewObjectId()
+					fmt.Println("New Plotter ID Assigned: " + plotterClients[ws].Hex())
 					ws.WriteJSON(wsMessage{
-						MessageType: status,
+						MessageType: "status",
 						Payload:     "New Plotter ID Assigned: " + plotterClients[ws].Hex(),
 					})
 				}
 			}
-			if msg.MessageType == 2 {
+			if msg.MessageType == "commandRequest" {
 				if _, ok := plotterClients[ws]; ok {
 					currentCommand := msg.Payload.(int)
 					if currentCommand < len(commandList) {
 						ws.WriteJSON(wsMessage{
-							MessageType: plotCommand,
+							MessageType: "plotCommand",
 							Payload:     commandList[currentCommand],
 						})
 					}

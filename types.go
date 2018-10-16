@@ -29,23 +29,7 @@ var commandList = []plotMessage{
 	},
 }
 
-type clientType int
-
-const (
-	plotter clientType = 0
-	monitor            = 1
-)
-
-type messageType int
-
-const (
-	status         messageType = 0
-	registration               = 1
-	commandRequest             = 2
-	plotCommand                = 3
-)
-
 type wsMessage struct {
-	MessageType messageType `json:"msgType"`
+	MessageType string      `json:"msgType"`
 	Payload     interface{} `json:"payload"`
 }
