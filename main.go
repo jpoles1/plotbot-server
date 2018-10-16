@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"plotbot-server/envload"
@@ -11,28 +10,21 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/websocket"
+	"gopkg.in/mgo.v2/bson"
 )
-
-type stepperCommand struct {
-	Degrees   int  `json:"deg"`
-	Clockwise bool `json:"dir"`
-}
-
-type plotCommand struct {
-	LeftStepper  stepperCommand `json:"left"`
-	RightStepper stepperCommand `json:"right"`
-}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-var clients = make(map[*websocket.Conn]bool) // connected clients
-var broadcast = make(chan plotCommand)       // broadcast channel
+var plotterClients = make(map[*websocket.Conn]bson.ObjectId)
+var monitorClients = make(map[*websocket.Conn]bool)
+var broadcast = make(chan wsMessage) // broadcast channel
 
 func wsClose(ws *websocket.Conn) {
-	delete(clients, ws)
+	delete(plotterClients, ws)
+	delete(monitorClients, ws)
 	ws.Close()
 }
 func main() {
@@ -52,21 +44,35 @@ func main() {
 			logging.Error("Upgrading websocket connection", err)
 		}
 		defer wsClose(ws)
-		clients[ws] = true
-
+		monitorClients[ws] = true
 		for {
 			// Read message from browser
-			msgType, msg, err := ws.ReadMessage()
+			var msg wsMessage
+			err := ws.ReadJSON(&msg)
 			if err != nil {
-				return
+				logging.Error("Parsing incoming JSON", err)
+				break
 			}
-
-			// Print the message to the console
-			fmt.Printf("%s sent: %s\n", ws.RemoteAddr(), string(msg))
-
-			// Write message back to browser
-			if err = ws.WriteMessage(msgType, msg); err != nil {
-				return
+			if msg.MessageType == 0 {
+				if msg.Payload.(registrationMessage).ClientType == plotter {
+					delete(monitorClients, ws)
+					plotterClients[ws] = bson.NewObjectId()
+					ws.WriteJSON(wsMessage{
+						MessageType: status,
+						Payload:     "New Plotter ID Assigned: " + plotterClients[ws].Hex(),
+					})
+				}
+			}
+			if msg.MessageType == 2 {
+				if _, ok := plotterClients[ws]; ok {
+					currentCommand := msg.Payload.(int)
+					if currentCommand < len(commandList) {
+						ws.WriteJSON(wsMessage{
+							MessageType: plotCommand,
+							Payload:     commandList[currentCommand],
+						})
+					}
+				}
 			}
 		}
 	})
