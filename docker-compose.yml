@@ -3,20 +3,9 @@ services:
   app:
     image: golang:1.9.2
     ports:
-      - "9999:9999"
+      - "9898:9898"
     volumes:
       - .:/go/src/plotbot-server
     working_dir: /go/src/plotbot-server
     command: bash -c "go get github.com/golang/dep/cmd/dep && dep ensure && go build . && ./plotbot-server"
-    links:
-      - mongo
-    environment:
-      MONGO_URI: mongodb://mongo
     restart: unless-stopped
-  mongo:
-    image: mongo
-    volumes:
-      - ./mdata:/data/db
-    restart: unless-stopped
-volumes:
-  mdata:
