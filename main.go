@@ -47,7 +47,11 @@ func main() {
 	router.Get("/", fileServer("static", true))
 	router.Route("/api", func(r chi.Router) {
 		r.Get("/deviceList", func(w http.ResponseWriter, r *http.Request) {
-			sendResponseJSON(w, plotterClients)
+			var clientData []plotterStatus
+			for _, value := range plotterClients {
+				clientData = append(clientData, value)
+			}
+			sendResponseJSON(w, clientData)
 		})
 	})
 	router.Get("/ws", func(w http.ResponseWriter, r *http.Request) {
