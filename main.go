@@ -19,9 +19,14 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-var plotterClients = make(map[*websocket.Conn]bson.ObjectId)
+var plotterClients = make(map[*websocket.Conn]plotterStatus)
 var monitorClients = make(map[*websocket.Conn]bool)
 var broadcast = make(chan wsMessage) // broadcast channel
+
+var plotterSetup = plotterConfig{
+	AnchorDistance: 108,
+	SpoolDiameter:  30,
+}
 
 func wsClose(ws *websocket.Conn) {
 	delete(plotterClients, ws)
@@ -58,21 +63,32 @@ func main() {
 			if msg.MessageType == "registration" {
 				if msg.Payload.(string) == "plotter" {
 					delete(monitorClients, ws)
-					plotterClients[ws] = bson.NewObjectId()
-					fmt.Println("New Plotter ID Assigned: " + plotterClients[ws].Hex())
+					plotterClients[ws] = plotterStatus{
+						bson.NewObjectId(),
+						"Online",
+						plotterCoordinate{0, 0},
+					}
 					ws.WriteJSON(wsMessage{
 						MessageType: "status",
-						Payload:     "New Plotter ID Assigned: " + plotterClients[ws].Hex(),
+						Payload:     "New Plotter ID Assigned: " + plotterClients[ws].PlotterID.Hex(),
 					})
 				}
 			}
 			if msg.MessageType == "commandRequest" {
 				if _, ok := plotterClients[ws]; ok {
 					currentCommand := int(msg.Payload.(float64))
-					if currentCommand < len(commandList) {
+					if currentCommand == 0 {
+						updatedStatus := plotterClients[ws]
+						updatedStatus.CurrentCoord = plotterCoordinate{0, 0}
+						plotterClients[ws] = updatedStatus
+					}
+					if currentCommand < len(coordList) {
 						ws.WriteJSON(wsMessage{
 							MessageType: "plotCommand",
-							Payload:     commandList[currentCommand%len(commandList)],
+							Payload: plotterSetup.generatePlotMessage(
+								plotterClients[ws].CurrentCoord,
+								coordList[currentCommand],
+							),
 						})
 					}
 				}

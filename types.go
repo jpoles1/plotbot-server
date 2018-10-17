@@ -1,11 +1,20 @@
 package main
 
-type stepperConfig struct {
+import "gopkg.in/mgo.v2/bson"
+
+type plotterConfig struct {
 	SpoolDiameter  float64
 	AnchorDistance float64
+	StartPosition  plotterCoordinate
 }
 
-type stepperCoordinate struct {
+type plotterStatus struct {
+	PlotterID    bson.ObjectId
+	Status       string
+	CurrentCoord plotterCoordinate
+}
+
+type plotterCoordinate struct {
 	X float64
 	Y float64
 }

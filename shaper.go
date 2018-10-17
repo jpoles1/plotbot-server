@@ -2,20 +2,20 @@ package main
 
 import "math"
 
-var coordList = []stepperCoordinate{
-	stepperCoordinate{0, 0},
-	stepperCoordinate{0, 10},
-	stepperCoordinate{10, 10},
-	stepperCoordinate{10, 0},
-	stepperCoordinate{0, 0},
+var coordList = []plotterCoordinate{
+	plotterCoordinate{0, 0},
+	plotterCoordinate{0, 10},
+	plotterCoordinate{10, 10},
+	plotterCoordinate{10, 0},
+	plotterCoordinate{0, 0},
 }
 
-func (s stepperConfig) generatePlotMessage(oldCoord stepperCoordinate, newCoord stepperCoordinate) plotMessage {
-	distPerDegree := math.Pi * s.SpoolDiameter / 360
+func (pc plotterConfig) generatePlotMessage(oldCoord plotterCoordinate, newCoord plotterCoordinate) plotMessage {
+	distPerDegree := math.Pi * pc.SpoolDiameter / 360
 	oldLengthLeft := math.Sqrt(math.Pow(oldCoord.X, 2) + math.Pow(oldCoord.Y, 2))
-	oldLengthRight := math.Sqrt(math.Pow((s.AnchorDistance-oldCoord.X), 2) + math.Pow(oldCoord.Y, 2))
+	oldLengthRight := math.Sqrt(math.Pow((pc.AnchorDistance-oldCoord.X), 2) + math.Pow(oldCoord.Y, 2))
 	newLengthLeft := math.Sqrt(math.Pow(newCoord.X, 2) + math.Pow(newCoord.Y, 2))
-	newLengthRight := math.Sqrt(math.Pow(newCoord.X, 2) + math.Pow(newCoord.Y, 2))
+	newLengthRight := math.Sqrt(math.Pow(pc.AnchorDistance-newCoord.X, 2) + math.Pow(newCoord.Y, 2))
 	leftRotDelta := (newLengthLeft - oldLengthLeft) / distPerDegree
 	rightRotDelta := (newLengthRight - oldLengthRight) / distPerDegree
 	return plotMessage{
