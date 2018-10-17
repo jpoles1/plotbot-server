@@ -10,7 +10,9 @@ var coordList = []plotterCoordinate{
 	plotterCoordinate{0, 0},
 }
 
-func (pc plotterConfig) generatePlotMessage(oldCoord plotterCoordinate, newCoord plotterCoordinate) plotMessage {
+func (ps plotterStatus) generatePlotMessage(newCoord plotterCoordinate) plotMessage {
+	pc := ps.Config
+	oldCoord := ps.CurrentCoord
 	distPerDegree := math.Pi * pc.SpoolDiameter / 360
 	oldLengthLeft := math.Sqrt(math.Pow(pc.StartCoord.X+oldCoord.X, 2) + math.Pow(pc.StartCoord.Y+oldCoord.Y, 2))
 	oldLengthRight := math.Sqrt(math.Pow((pc.AnchorDistance-(pc.StartCoord.X+oldCoord.X)), 2) + math.Pow(pc.StartCoord.Y+oldCoord.Y, 2))

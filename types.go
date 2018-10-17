@@ -10,6 +10,7 @@ type plotterConfig struct {
 
 type plotterStatus struct {
 	PlotterID    bson.ObjectId
+	Config       plotterConfig
 	Status       string
 	CurrentCoord plotterCoordinate
 }

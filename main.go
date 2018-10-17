@@ -23,8 +23,8 @@ var plotterClients = make(map[*websocket.Conn]plotterStatus)
 var monitorClients = make(map[*websocket.Conn]bool)
 var broadcast = make(chan wsMessage) // broadcast channel
 
-var plotterSetup = plotterConfig{
-	AnchorDistance: 108,
+var defaultPlotterConfig = plotterConfig{
+	AnchorDistance: 42.5 * 2.54,
 	SpoolDiameter:  30,
 	StartCoord:     plotterCoordinate{25 * 2.54, 19 * 2.54},
 }
@@ -45,6 +45,11 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 	router.Get("/", fileServer("static", true))
+	router.Route("/api", func(r chi.Router) {
+		r.Get("/deviceList", func(w http.ResponseWriter, r *http.Request) {
+			sendResponseJSON(w, plotterClients)
+		})
+	})
 	router.Get("/ws", func(w http.ResponseWriter, r *http.Request) {
 		ws, err := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
 		if err != nil {
@@ -66,6 +71,7 @@ func main() {
 					delete(monitorClients, ws)
 					plotterClients[ws] = plotterStatus{
 						bson.NewObjectId(),
+						defaultPlotterConfig,
 						"Online",
 						plotterCoordinate{0, 0},
 					}
@@ -86,10 +92,7 @@ func main() {
 					if currentCommand < len(coordList) {
 						ws.WriteJSON(wsMessage{
 							MessageType: "plotCommand",
-							Payload: plotterSetup.generatePlotMessage(
-								plotterClients[ws].CurrentCoord,
-								coordList[currentCommand],
-							),
+							Payload:     plotterClients[ws].generatePlotMessage(coordList[currentCommand]),
 						})
 					}
 				}
