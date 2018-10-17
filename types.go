@@ -5,7 +5,7 @@ import "gopkg.in/mgo.v2/bson"
 type plotterConfig struct {
 	SpoolDiameter  float64
 	AnchorDistance float64
-	StartPosition  plotterCoordinate
+	StartCoord     plotterCoordinate
 }
 
 type plotterStatus struct {

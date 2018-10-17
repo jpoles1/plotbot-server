@@ -26,6 +26,7 @@ var broadcast = make(chan wsMessage) // broadcast channel
 var plotterSetup = plotterConfig{
 	AnchorDistance: 108,
 	SpoolDiameter:  30,
+	StartCoord:     plotterCoordinate{25 * 2.54, 19 * 2.54},
 }
 
 func wsClose(ws *websocket.Conn) {
