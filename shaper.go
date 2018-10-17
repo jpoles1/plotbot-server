@@ -3,11 +3,11 @@ package main
 import "math"
 
 var coordList = []plotterCoordinate{
-	plotterCoordinate{0, 0},
-	plotterCoordinate{0, 100},
-	plotterCoordinate{100, 100},
-	plotterCoordinate{100, 0},
-	plotterCoordinate{0, 0},
+/*plotterCoordinate{0, 0},
+plotterCoordinate{0, 100},
+plotterCoordinate{100, 100},
+plotterCoordinate{100, 0},
+plotterCoordinate{0, 0},*/
 }
 
 func (ps plotterStatus) generatePlotMessage(newCoord plotterCoordinate) plotMessage {
