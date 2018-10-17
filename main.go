@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"plotbot-server/envload"
 	"plotbot-server/logging"
+	"strconv"
 
 	"github.com/fatih/color"
 	"github.com/go-chi/chi"
@@ -20,16 +21,21 @@ var upgrader = websocket.Upgrader{
 }
 
 var plotterClients = make(map[*websocket.Conn]plotterStatus)
+var plotterBroadcasters = make(map[bson.ObjectId]*websocket.Conn)
 var monitorClients = make(map[*websocket.Conn]bool)
 var broadcast = make(chan wsMessage) // broadcast channel
 
 var defaultPlotterConfig = plotterConfig{
-	AnchorDistance: 42.5 * 2.54,
+	AnchorDistance: 39 * 2.54,
 	SpoolDiameter:  30,
-	StartCoord:     plotterCoordinate{25 * 2.54, 19 * 2.54},
+	StartCoord:     plotterCoordinate{20 * 2.54, 29 * 2.54},
 }
 
 func wsClose(ws *websocket.Conn) {
+	fmt.Println("Closing socket!")
+	if _, ok := plotterClients[ws]; ok {
+		delete(plotterBroadcasters, plotterClients[ws].PlotterID)
+	}
 	delete(plotterClients, ws)
 	delete(monitorClients, ws)
 	ws.Close()
@@ -52,6 +58,22 @@ func main() {
 				clientData = append(clientData, value)
 			}
 			sendResponseJSON(w, clientData)
+		})
+		r.Get("/deviceCommand", func(w http.ResponseWriter, r *http.Request) {
+			queryValues := r.URL.Query()
+			if bson.IsObjectIdHex(queryValues.Get("id")) {
+				if x, err := strconv.ParseFloat(queryValues.Get("x"), 64); err == nil {
+					if y, err := strconv.ParseFloat(queryValues.Get("y"), 64); err == nil {
+						ws := plotterBroadcasters[bson.ObjectIdHex(queryValues.Get("id"))]
+						ws.WriteJSON(wsMessage{
+							MessageType: "plotCommand",
+							Payload: plotterClients[ws].generatePlotMessage(
+								plotterCoordinate{x, y},
+							),
+						})
+					}
+				}
+			}
 		})
 	})
 	router.Get("/ws", func(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +101,7 @@ func main() {
 						"Online",
 						plotterCoordinate{0, 0},
 					}
+					plotterBroadcasters[plotterClients[ws].PlotterID] = ws
 					ws.WriteJSON(wsMessage{
 						MessageType: "status",
 						Payload:     "New Plotter ID Assigned: " + plotterClients[ws].PlotterID.Hex(),
@@ -98,6 +121,9 @@ func main() {
 							MessageType: "plotCommand",
 							Payload:     plotterClients[ws].generatePlotMessage(coordList[currentCommand]),
 						})
+						updatedStatus := plotterClients[ws]
+						updatedStatus.CurrentCoord = coordList[currentCommand]
+						plotterClients[ws] = updatedStatus
 					}
 				}
 			}
