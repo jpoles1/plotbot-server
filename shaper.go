@@ -10,7 +10,7 @@ plotterCoordinate{100, 0},
 plotterCoordinate{0, 0},*/
 }
 
-func (ps plotterStatus) generatePlotMessage(newCoord plotterCoordinate) plotMessage {
+func (ps *plotterStatus) generatePlotMessage(newCoord plotterCoordinate) plotMessage {
 	pc := ps.Config
 	oldCoord := ps.CurrentCoord
 	distPerDegree := math.Pi * pc.SpoolDiameter / 360
@@ -20,6 +20,7 @@ func (ps plotterStatus) generatePlotMessage(newCoord plotterCoordinate) plotMess
 	newLengthRight := math.Sqrt(math.Pow(pc.AnchorDistance-(pc.StartCoord.X+newCoord.X), 2) + math.Pow(pc.StartCoord.Y+newCoord.Y, 2))
 	leftRotDelta := (newLengthLeft - oldLengthLeft) / distPerDegree
 	rightRotDelta := (newLengthRight - oldLengthRight) / distPerDegree
+	ps.CurrentCoord = newCoord
 	return plotMessage{
 		stepperCommand{int(math.Abs(leftRotDelta)), leftRotDelta > 0},
 		stepperCommand{int(math.Abs(rightRotDelta)), rightRotDelta > 0},

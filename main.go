@@ -65,12 +65,14 @@ func main() {
 				if x, err := strconv.ParseFloat(queryValues.Get("x"), 64); err == nil {
 					if y, err := strconv.ParseFloat(queryValues.Get("y"), 64); err == nil {
 						ws := plotterBroadcasters[bson.ObjectIdHex(queryValues.Get("id"))]
+						updatedClient := plotterClients[ws]
 						ws.WriteJSON(wsMessage{
 							MessageType: "plotCommand",
-							Payload: plotterClients[ws].generatePlotMessage(
+							Payload: updatedClient.generatePlotMessage(
 								plotterCoordinate{x, y},
 							),
 						})
+						plotterClients[ws] = updatedClient
 					}
 				}
 			}
@@ -117,13 +119,12 @@ func main() {
 						plotterClients[ws] = updatedStatus
 					}
 					if currentCommand < len(coordList) {
+						updatedClient := plotterClients[ws]
 						ws.WriteJSON(wsMessage{
 							MessageType: "plotCommand",
-							Payload:     plotterClients[ws].generatePlotMessage(coordList[currentCommand]),
+							Payload:     updatedClient.generatePlotMessage(coordList[currentCommand]),
 						})
-						updatedStatus := plotterClients[ws]
-						updatedStatus.CurrentCoord = coordList[currentCommand]
-						plotterClients[ws] = updatedStatus
+						plotterClients[ws] = updatedClient
 					}
 				}
 			}
